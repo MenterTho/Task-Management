@@ -1,25 +1,55 @@
 const express = require('express');
-const dotenv = require("dotenv")
-const morgan = require("morgan")
-const path = require("path")
 const http = require('http');
-const connectDB = require('./Config/db')
-const appRoutes = require('./Routes/appRoutes')
+const socketIo = require('socket.io');
+const dotenv = require('dotenv');
+const morgan = require('morgan');
+const path = require('path');
+const connectDB = require('./configs/db');
+const setupSocket = require('./configs/socket');
+const route = require('./routes/appRoutes');
 
-dotenv.config()
-const app = express()
-const port = process.env.PORT || 3001  
+// Configure environment variables
+dotenv.config();
 
-app.use(express.json())
-app.use(morgan("combined"))
-app.use(express.static(path.join(__dirname, "public")))
-app.use(express.json())
+// Create Express app and HTTP server
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
+// Lưu io để sử dụng trong controllers
+app.set('io', io);
 
-// appRoutes(app)
+// Middleware setup
+app.use(express.json());
+app.use(morgan('combined')); 
+app.use(express.static(path.join(__dirname, 'public'))); 
 
-connectDB()
-// Start the server
-app.listen(port, async () => {
-  console.log(`Server is running at http://localhost:${port}`)
-})
+// Setup routes
+route(app);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error'
+  });
+});
+
+// Setup WebSocket
+setupSocket(io);
+
+// Start server after connecting to MongoDB
+const port = process.env.PORT || 3001;
+const startServer = async () => {
+  try {
+    await connectDB(); 
+    server.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+};
+
+startServer();
