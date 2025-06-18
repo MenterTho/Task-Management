@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const path = require('path');
 const connectDB = require('./configs/db');
 const setupSocket = require('./configs/socket');
-const route = require('./routes/appRoutes');
+const userRoutes = require("./routes/appRoutes")
 
 // Configure environment variables
 dotenv.config();
@@ -25,7 +25,7 @@ app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 // Setup routes
-route(app);
+userRoutes(app);
 
 // Global error handler
 app.use((err, req, res, next) => {

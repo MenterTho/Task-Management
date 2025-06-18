@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const redisClient = require('./redis');
-const { User } = require('../Models/userModel');
+const { User } = require('../models/userModel');
 
 module.exports = (io) => {
   io.on('connection', (socket) => {

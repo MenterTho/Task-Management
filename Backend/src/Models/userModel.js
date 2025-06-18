@@ -17,7 +17,6 @@ const UserSchema = new Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-UserSchema.index({ email: 1 }); 
 UserSchema.index({ lastActive: -1 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
