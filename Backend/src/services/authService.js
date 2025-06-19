@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User} = require('../models/userModel');
-const { Session} = require('../models/auth/sessionModel');
+const User = require('../models/userModel');
+const Session = require('../models/auth/sessionModel');
 const redisClient = require('../configs/redis');
 const UAParser = require('ua-parser-js');
 
@@ -27,7 +27,7 @@ class AuthService {
     const accessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-    const parser = new UAParser(deviceInfo.deviceType);
+    const parser = new UAParser(deviceInfo);
     const session = new Session({
       userId: user._id,
       accessToken,
@@ -47,7 +47,7 @@ class AuthService {
     console.log(`User logged in: ${email} from ${session.deviceInfo.browser} on ${session.deviceInfo.os}`);
     io.emit('userStatus', { userId: user._id, online: true });
 
-    return { accessToken, refreshToken, user: { _id: user._id, email: user.email, name: user.name } };
+    return { accessToken, refreshToken, user: { _id: user._id, email: user.email, name: user.name } ,deviceInfo};
   }
 
   static async logout({ refreshToken, io }) {
