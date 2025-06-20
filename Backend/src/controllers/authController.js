@@ -12,7 +12,7 @@ const AuthController = {
       });
     } catch (err) {
       res.status(err.message === 'Email already exists' ? 400 : 500).json({
-        status: 'error',
+        status: 'error',  
         message: err.message || 'Registration failed'
       });
     }
